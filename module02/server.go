@@ -1,18 +1,26 @@
 package main
 
 import (
-	"flag"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
-var vesion string
+// var versionPoint *string
+
+var version string
 
 func main() {
-	// 系统的环境变量中的 VERSION
-	vesion = *flag.String("VERSION","0.1","define version") 
+	// 获取启动参数中的 VERSION
+	// versionPoint = flag.String("VERSION","0.1","define version") 
+	// flag.Parse()
+
+	// 获取环境变量中的 VERSION
+	version = os.Getenv("VERSION")
+	log.Println(version)
+	
 	// 注册不同路径的处理函数
 	http.HandleFunc("/",logging(rootHandler))
 	http.HandleFunc("/healthz",logging(healthzHandler))
@@ -28,7 +36,7 @@ func rootHandler(resp http.ResponseWriter,req *http.Request){
 	// 获取request header
 	reqHeaders := req.Header
 	// 写入response header
-	resp.Header().Set("VERSION",vesion)
+	resp.Header().Set("VERSION",version)
 	for k,v:=range reqHeaders{
 		value := strings.Join(v, ",")
 		resp.Header().Set(k,value)
