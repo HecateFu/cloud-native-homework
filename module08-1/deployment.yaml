@@ -21,6 +21,7 @@ spec:
                 configMapKeyRef:
                   name: http-config
                   key: VERSION
+          # 延迟探测、探活
           livenessProbe:
             httpGet:
               path: /healthz
@@ -29,6 +30,7 @@ spec:
             periodSeconds: 5
             failureThreshold: 3  
             successThreshold: 1 
+          # 资源限制 Qos
           resources:
             requests:
               cpu: 100m
@@ -42,9 +44,3 @@ spec:
       volumes:
         - name: varlog
           emptyDir: {}
-        - name: config
-          configMap:
-            name: http-config
-            items:
-              - key: VERSION
-                path: "1.1.1"
