@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: http-config
+data:
+  VERSION: 1.1.2
+  logLevel: "5"
