@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: httpserver-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: httpserver
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+      labels:
+        app: httpserver
+    spec:
+      containers:
+        - name: httpserver
+          image: httpserver:1.0.6
+          ports:
+            - containerPort: 8080
+          env:
+            - name: VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: http-config
+                  key: VERSION
+          # 延迟探测、探活
+          startupProbe:
+            httpGet:
+              path: /healthz?from=start
+              port: 8080
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz?from=ready
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz?from=live
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 6
+          lifecycle:
+            postStart: 
+              exec:
+                command: ["/bin/sh","-c","echo '容器启动' $(date) >> /var/log/start.log && printenv >> /var/log/start.log"]
+            preStop:
+              exec:
+                command: ["/bin/sh","-c","kill -SIGHUP 1"]
+          # 资源限制 Qos
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 200m
+              memory: 200Mi
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+      volumes:
+        - name: varlog
+          emptyDir: {}
