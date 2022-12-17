@@ -1,0 +1,58 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service
+spec:
+  gateways:
+    - service
+  hosts:
+    - service.fcx.org
+  http:
+  - match:
+    - uri:
+        exact: /service0
+    rewrite:
+      uri: "/"
+    route:
+      - destination:
+          host: service0
+          port:
+            number: 80
+  - match:
+    - uri:
+        exact: /service1
+    rewrite:
+      uri: "/"
+    route:
+      - destination:
+          host: service1
+          port:
+            number: 80
+  - match:
+    - uri:
+        exact: /service2
+    rewrite:
+      uri: "/"
+    route:
+      - destination:
+          host: service2
+          port:
+            number: 80
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: service
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - hosts:
+        - service.fcx.org
+      port:
+        name: https-default
+        number: 443
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: fcx-crt
