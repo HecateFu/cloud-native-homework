@@ -336,6 +336,7 @@
    ```
 
 10. 从 jaeger dashboard 查看链路跟踪信息
+    
     `--address` 指定dashboard访问ip到虚拟机ip上，方便通宿主机访问
     ```sh
     root@ubuntu1:/home/hecate/module12# istioctl dashboard jaeger --address 10.0.2.4
